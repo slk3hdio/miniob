@@ -464,6 +464,8 @@ public:
   RC create(LogHandler &log_handler, DiskBufferPool &buffer_pool, AttrType attr_type, int attr_length,
       int internal_max_size = -1, int leaf_max_size = -1);
 
+  RC drop();
+
   /**
    * @brief 打开一个B+树
    * @param log_handler 记录日志

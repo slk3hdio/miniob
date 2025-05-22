@@ -292,6 +292,8 @@ protected:
    */
   RC flush_page_internal(Frame &frame);
 
+  
+
 private:
   BufferPoolManager   &bp_manager_;     /// BufferPool 管理器
   BPFrameManager      &frame_manager_;  /// Frame 管理器
@@ -329,7 +331,6 @@ public:
   RC create_file(const char *file_name);
   RC open_file(LogHandler &log_handler, const char *file_name, DiskBufferPool *&bp);
   RC close_file(const char *file_name);
-
   RC flush_page(Frame &frame);
 
   BPFrameManager    &get_frame_manager() { return frame_manager_; }

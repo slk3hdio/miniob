@@ -130,16 +130,30 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
 
 RC Table::drop(const char *base_dir)
 {
-  // 删除索引
-
+  // 删除表引擎
+  RC rc = engine_->drop();
+  if (rc != RC::SUCCESS){
+    LOG_ERROR("Failed to drop table engine, table_name:%s, rc:%s", table_meta_.name(), strrc(rc));
+    return rc;
+  }
+  LOG_INFO("Successfully drop table engine, table_name:%s", table_meta_.name());
   // 删除表数据文件
-
+  string data_file = table_data_file(base_dir, table_meta_.name());
+  BufferPoolManager &bpm = db_->buffer_pool_manager();
+  rc = bpm.close_file(data_file.c_str());
+  if (rc != RC::SUCCESS){
+    LOG_ERROR("Failed to close table data file, table_name:%s, rc:%s", table_meta_.name(), strrc(rc));
+    return rc;
+  }
+  remove(data_file.c_str());
+  LOG_INFO("Successfully remove table data file, table_name:%s", table_meta_.name());
   // 删除元数据文件
   string meta_file_path = table_meta_file(base_dir, table_meta_.name());
   if (remove(meta_file_path.c_str()) != 0) {
     LOG_ERROR("Failed to remove meta file. file name=%s", meta_file_path.c_str());
     return RC::IOERR_ACCESS;
   }
+  LOG_INFO("Successfully remove table meta file, table_name:%s", table_meta_.name());
   return RC::SUCCESS;
 }
 

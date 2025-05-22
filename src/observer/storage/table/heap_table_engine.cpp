@@ -9,6 +9,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #include "storage/table/heap_table_engine.h"
+#include "common/sys/rc.h"
 #include "storage/record/heap_record_scanner.h"
 #include "common/log/log.h"
 #include "storage/index/bplus_tree_index.h"
@@ -206,6 +207,21 @@ RC HeapTableEngine::create_index(Trx *trx, const FieldMeta *field_meta, const ch
 
   LOG_INFO("Successfully added a new index (%s) on the table (%s)", index_name, table_meta_->name());
   return rc;
+}
+
+RC HeapTableEngine::drop()
+{
+  // 删除所有索引
+  for (Index *index : indexes_) {
+    RC rc = index->drop();
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("Failed to drop index, index_name:%s, rc:%s", index->index_meta().name(), strrc(rc));
+      return rc;
+    }
+  }
+  indexes_.clear();
+
+  return RC::SUCCESS;
 }
 
 RC HeapTableEngine::insert_entry_of_indexes(const char *record, const RID &rid)

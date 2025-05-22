@@ -11,17 +11,23 @@
 		},
 		{
 			"FIELD_id" : 1,
-			"len" : 10,
+			"len" : 20,
 			"name" : "name",
 			"offset" : 4,
 			"type" : "chars",
 			"visible" : true
 		}
 	],
-	"indexes" : null,
+	"indexes" : 
+	[
+		{
+			"field_name" : "id",
+			"name" : "iid"
+		}
+	],
 	"primary_keys" : null,
 	"storage_engine" : 0,
 	"storage_format" : 1,
-	"table_id" : 0,
+	"table_id" : 1,
 	"table_name" : "test"
 }
