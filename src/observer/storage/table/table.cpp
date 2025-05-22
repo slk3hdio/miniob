@@ -128,6 +128,21 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
+RC Table::drop(const char *base_dir)
+{
+  // 删除索引
+
+  // 删除表数据文件
+
+  // 删除元数据文件
+  string meta_file_path = table_meta_file(base_dir, table_meta_.name());
+  if (remove(meta_file_path.c_str()) != 0) {
+    LOG_ERROR("Failed to remove meta file. file name=%s", meta_file_path.c_str());
+    return RC::IOERR_ACCESS;
+  }
+  return RC::SUCCESS;
+}
+
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件
