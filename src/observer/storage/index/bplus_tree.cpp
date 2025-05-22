@@ -906,8 +906,17 @@ RC BplusTreeHandler::create(LogHandler &log_handler,
 RC BplusTreeHandler::drop()
 {
   string index_file_name = disk_buffer_pool_->filename();
-  disk_buffer_pool_->close_file();
-  remove(index_file_name.c_str());
+  RC rc = disk_buffer_pool_->close_file();
+  if (rc != RC::SUCCESS){
+    LOG_ERROR("Failed to close index file, index_name:%s, rc:%s", index_file_name.c_str(), strrc(rc));
+    return rc;
+  }
+  LOG_INFO("Successfully close index file, index_name:%s", index_file_name.c_str());
+  if (remove(index_file_name.c_str()) != 0){
+    LOG_ERROR("Failed to remove index file, index_name:%s, rc:%s", index_file_name.c_str(), strerror(errno));
+    return RC::IOERR_REMOVE;
+  }
+  LOG_INFO("Successfully remove index file, index_name:%s", index_file_name.c_str());
   return RC::SUCCESS;
 }
 
@@ -974,7 +983,12 @@ RC BplusTreeHandler::open(LogHandler &log_handler, DiskBufferPool &buffer_pool)
 RC BplusTreeHandler::close()
 {
   if (disk_buffer_pool_ != nullptr) {
-    disk_buffer_pool_->close_file();
+    RC rc = disk_buffer_pool_->close_file();
+    if (rc != RC::SUCCESS) {
+      LOG_ERROR("Failed to close index file, rc=%d:%s", rc, strrc(rc));
+      return rc;
+    }
+    LOG_INFO("Successfully close index file");
   }
 
   disk_buffer_pool_ = nullptr;
